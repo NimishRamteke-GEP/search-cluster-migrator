@@ -17,12 +17,7 @@ namespace opensearch_migrator
         private readonly string _sourceCluster;
         private readonly string _targetCluster;
         private const int BatchSize = 20;
-
-        // Dictionary for mapping type conversions (e.g., for OpenSearch compatibility)
-        private readonly Dictionary<string, string> _mappingTypeConversions = new Dictionary<string, string>
-        {
-            { "flattened", "flat_object" } // Add more conversions as needed later
-        };
+        private readonly MappingTypeConverter _mappingConverter;
 
         // Tracking for summary
         private int _totalIndices;
@@ -42,6 +37,7 @@ namespace opensearch_migrator
             _logger = logger;
             _sourceCluster = sourceCluster;
             _targetCluster = targetCluster;
+            _mappingConverter = new MappingTypeConverter(logger);
         }
 
         public async Task MigrateAsync(string indexPattern)
@@ -163,7 +159,7 @@ namespace opensearch_migrator
                 var mappings = indexData["mappings"] as JObject;
                 if (mappings != null)
                 {
-                    TransformMappings(mappings);
+                    _mappingConverter.TransformMappings(mappings);
                 }
 
                 // Prepare the cleaned payload
@@ -209,24 +205,6 @@ namespace opensearch_migrator
             {
                 _logger.Log($"Error checking existence of index {indexName} in target: {ex.Message}");
                 return false;
-            }
-        }
-
-        private void TransformMappings(JObject mappings)
-        {
-            // Use JSONPath to find all 'type' properties in mappings
-            var typeTokens = mappings.SelectTokens("..type").ToList();
-            foreach (var token in typeTokens)
-            {
-                if (token.Type == JTokenType.String)
-                {
-                    string currentType = token.Value<string>();
-                    if (_mappingTypeConversions.TryGetValue(currentType, out string newType))
-                    {
-                        _logger.Log($"Converting mapping type '{currentType}' to '{newType}'");
-                        token.Replace(newType);
-                    }
-                }
             }
         }
 
