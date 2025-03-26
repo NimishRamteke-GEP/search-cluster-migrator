@@ -52,3 +52,10 @@ CodeCoverage/
 *.VisualState.xml
 TestResult.xml
 nunit-*.xml
+*.json
+*.sqlite
+*.db
+*.db-shm
+*.db-wal
+*.vsidx
+*.wsuo
