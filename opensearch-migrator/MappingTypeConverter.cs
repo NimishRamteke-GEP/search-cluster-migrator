@@ -35,6 +35,15 @@ namespace opensearch_migrator
                         _logger.Log($"Converting mapping type '{currentType}' to '{newType}'");
                         token.Replace(newType);
                     }
+                    if (string.Equals(currentType, "wildcard"))
+                    {
+                        var wildcardField = token.Parent?.Parent as JObject;
+                        if (wildcardField != null)
+                        {
+                            wildcardField["doc_values"] = true;
+                            _logger.Log($"Updated 'fields.wildcard' with doc_values: true for wildcard type");
+                        }
+                    }
                 }
             }
         }
