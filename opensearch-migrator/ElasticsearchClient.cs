@@ -51,19 +51,21 @@ namespace opensearch_migrator
 
         public async Task<bool> PutAsync(string endpoint, string jsonContent)
         {
+            HttpResponseMessage response = null;
             try
             {
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await _client.PutAsync(endpoint, content);
-                var ct = response.Content.ReadAsStringAsync();
+                response = await _client.PutAsync(endpoint, content);
+               
                 response.EnsureSuccessStatusCode();
 
                 return true;
             }
             catch (Exception ex)
             {
-                _logger.Log($"Error in PUT request to {endpoint}: {ex.Message}");
-                return false;
+                var ct = await response?.Content.ReadAsStringAsync();
+                _logger.Log($"Error in PUT request to {endpoint}: {ex.Message}: {ct}");
+                throw new Exception(ct);
             }
         }
     }

@@ -108,17 +108,22 @@ namespace opensearch_migrator
                 }
                 var jbody = JObject.Parse(pipelineDetails);
                 var pipelineBody = jbody[pipelineName].ToString(Formatting.None);
-                bool success = await _targetClient.PutAsync($"{_targetCluster}/_ingest/pipeline/{pipelineName}", pipelineBody);
-                if (success)
+                try
                 {
-                    _logger.Log($"Successfully migrated pipeline: {pipelineName}");
-                    _successfulMigrations++;
+                    bool success = await _targetClient.PutAsync($"{_targetCluster}/_ingest/pipeline/{pipelineName}", pipelineBody);
+                    if (success)
+                    {
+                        _logger.Log($"Successfully migrated pipeline: {pipelineName}");
+                        _successfulMigrations++;
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
                     _logger.Log($"Failed to migrate pipeline: {pipelineName}");
-                    _failedMigrations[pipelineName] = "PUT request failed";
+                    _failedMigrations[pipelineName] = $"PUT request failed {ex.Message}";
                 }
+
             }
             catch (Exception ex)
             {

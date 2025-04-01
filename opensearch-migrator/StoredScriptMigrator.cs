@@ -121,16 +121,21 @@ namespace opensearch_migrator
                 }
 
                 // Migrate to target
-                bool success = await _targetClient.PutAsync($"{_targetCluster}/_scripts/{scriptId}", scriptPayload);
-                if (success)
+
+                try
                 {
-                    _logger.Log($"Successfully migrated script: {scriptId}");
-                    _successfulMigrations++;
+                    bool success = await _targetClient.PutAsync($"{_targetCluster}/_scripts/{scriptId}", scriptPayload);
+                    if (success)
+                    {
+                        _logger.Log($"Successfully migrated script: {scriptId}");
+                        _successfulMigrations++;
+                    }
+
                 }
-                else
+                catch (Exception ex)
                 {
                     _logger.Log($"Failed to migrate script: {scriptId}");
-                    _failedMigrations[scriptId] = "PUT request failed";
+                    _failedMigrations[scriptId] = $"PUT request failed {ex.Message}";
                 }
             }
             catch (Exception ex)

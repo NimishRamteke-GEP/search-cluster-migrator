@@ -111,19 +111,22 @@ namespace opensearch_migrator
                     templateDetails = jObject.ToString(Formatting.None);
                 }
 
-                bool success = await _targetClient.PutAsync($"{_targetCluster}/_index_template/{templateName}", templateDetails);
-                if (success)
+                try
                 {
-                    _logger.Log($"Successfully migrated template: {templateName}");
-                    _successfulMigrations++;
+                    bool success = await _targetClient.PutAsync($"{_targetCluster}/_index_template/{templateName}", templateDetails);
+                    if (success)
+                    {
+                        _logger.Log($"Successfully migrated template: {templateName}");
+                        _successfulMigrations++;
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
                     _logger.Log($"Failed to migrate template: {templateName}");
-                    _failedMigrations[templateName] = "PUT request failed";
+                    _failedMigrations[templateName] = $"PUT request failed {ex.Message}";
                 }
             }
-            catch (Exception ex)
+            catch (Exception ex)    
             {
                 _logger.Log($"Error processing template {templateName}: {ex.Message}");
                 _failedMigrations[templateName] = ex.Message;

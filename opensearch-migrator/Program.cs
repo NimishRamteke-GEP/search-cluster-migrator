@@ -87,8 +87,13 @@ namespace opensearch_migrator
                             break;
 
                         case 7:
-                            Console.WriteLine("Exiting program...");
-                            return;
+                            var allIndexMigrator = new AllIndexMigrator(sourceClient, targetClient, logger, config.SourceCluster, config.TargetCluster);
+                            await allIndexMigrator.MigrateAsync();
+                            break;
+                        case 8:
+                            var indexBatcher = new IndexBatcher(sourceClient, logger);
+                            await indexBatcher.GenerateIndexBatchesAsync(config.SourceCluster);
+                            break;
                         case 99:
                             Console.WriteLine("Exiting program...");
                             return;
@@ -121,6 +126,8 @@ namespace opensearch_migrator
             Console.WriteLine("║ 4. Migrate Ingest Pipelines (comma-separated IDs)     ║");
             Console.WriteLine("║ 5. Migrate Indices (with pattern)                     ║");
             Console.WriteLine("║ 6. Migrate Stored Scripts (comma separated values)    ║");
+            Console.WriteLine("║ 7. Migrate All Missing Indices                        ║");
+            Console.WriteLine("║ 8. Generate Index Batches to CSV                      ║");
             Console.WriteLine("║ 99. Exit                                              ║");
             Console.WriteLine("╚═══════════════════════════════════════════════════════╝");
             Console.Write("Enter your choice (1-6): ");
