@@ -156,6 +156,8 @@ namespace opensearch_migrator
                         settings.Remove("creation_date");
                         settings.Remove("provided_name");
                         settings.Remove("version");
+                        settings["number_of_replicas"] = "0"; // Set default replica count
+                        settings["refresh_interval"] = "300s"; // Set default refresh interval
                     }
 
                     var mappings = indexData["mappings"] as JObject;
