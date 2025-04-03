@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,11 @@ namespace opensearch_migrator
 
         public FileLogger(string logFilePath = "migration_log.txt")
         {
-            _logFilePath = logFilePath;
+            var dateTime = DateTime.UtcNow.ToString();
+            DateTimeOffset dateTimeOffset = DateTimeOffset.Parse(dateTime, null, DateTimeStyles.RoundtripKind);
+            long unixTimeMilliseconds = dateTimeOffset.ToUnixTimeMilliseconds();
+            _logFilePath = $"{logFilePath}_{unixTimeMilliseconds}";
+
         }
 
         public void Log(string message)
