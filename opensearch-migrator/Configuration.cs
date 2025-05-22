@@ -18,7 +18,7 @@ namespace opensearch_migrator
         public string TargetUsername { get; }
         public string TargetPassword { get; }
 
-        public Configuration(string envFilePath = "C:\\Users\\Nimish.Ramteke\\source\\repos\\opensearch-migratrion\\opensearch-migrator\\.env")
+        public Configuration(string envFilePath = "..\\..\\..\\.env")
         {
             Env.Load(envFilePath); // Load .env file if it exists
             SourceCluster = Env.GetString("SOURCE_ES_CLUSTER")
